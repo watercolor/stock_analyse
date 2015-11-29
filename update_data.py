@@ -7,7 +7,7 @@ from stockdata import *
 
 stockarray = StockCode()
 
-basedir = "/Users/nzm/code/stock_analyse/stockdata"
+basedir = os.getcwd() + "/stockdata"
 startdate = "20150101"
 enddate   = "20151127"
 if os.path.exists(basedir) == False:
