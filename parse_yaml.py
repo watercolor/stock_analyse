@@ -4,8 +4,8 @@ import os
 import yaml
 
 class StockCode:
-    stockcode_file = os.getcwd() + "/stockcode.yaml"
-    stockname_file = os.getcwd() + "/stockname.yaml"
+    stockcode_file = os.getcwd() + os.sep + "stockcode.yaml"
+    stockname_file = os.getcwd() + os.sep + "stockname.yaml"
     stock_codedict = None
     stock_namedict = None
     stock_codelist = []
