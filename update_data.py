@@ -3,7 +3,7 @@
 import os
 from parse_yaml import *
 from sohu_data import *
-from stockdata import *
+from stockelem import *
 
 stockarray = StockCode()
 
