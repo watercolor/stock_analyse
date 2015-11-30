@@ -1,17 +1,26 @@
 # coding=utf-8
 import urllib2
-import json, csv
+import json, csv, os
 from stockdata import *
-
+from datetime import date
+from csvdata import *
 class SohuData:
     """ fetch sohu stock data
     """
     baseurl = "http://q.stock.sohu.com/hisHq?"
     basecallback = "historySearchHandler"
-    def __init__(self, code, startdate, enddate, period = "d"):
+    def __init__(self, code, startdate=None, enddate=None, period = "d"):
         self.code = code
-        self.startdate = startdate
-        self.enddate = enddate
+        today = date.today()
+        if startdate == None:
+            self.startdate = str(today.year) + str(today.month) + str(today.day - 1)
+        else:
+            self.startdate = startdate
+
+        if enddate == None:
+            self.enddate = str(today.year) + str(today.month) + str(today.day)
+        else:
+            self.enddate = enddate
         self.period = period
         self.fetchurl = None
         self.data_fetched = None
@@ -53,20 +62,16 @@ class SohuData:
         #print jsonobj
         #print jsonobj['hq'][1]
         #tt = StockData(jsonobj['hq'][1])
-        #tt.dump()
 
     def store_csv(self, inputfile='/tmp/stock.csv'):
         if self.data_json != None:
-            csvfile = file(inputfile, 'wb')
-            writer = csv.writer(csvfile)
-            writer.writerow(['日期', '开盘', '收盘', '最高', '最低', '涨跌额', '涨跌幅', '成交量', '成交额', '换手率'])
-            writer.writerows(self.data_json['hq'])
-            csvfile.close()
+            csv_data = csvdata(inputfile)
+            csv_data.write(self.data_json['hq']
         else:
             print "Store to " + inputfile + " failed. Data not fetched, maybe code error."
 
 
 if __name__  == "__main__":
-    test = SohuData("600000", "20151101", "20151130")
+    test = SohuData("600000")#, "20151101", "20151127")
     test.fetchdata()
     test.store_csv()

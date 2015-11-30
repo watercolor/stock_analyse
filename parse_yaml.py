@@ -44,7 +44,9 @@ class StockCode:
         if self.index < self.codenum - 1:
             self.index += 1
             return self.stock_codelist[self.index]
-        raise StopIteration()
+        else:
+            self.index = 0
+            raise StopIteration()
 
 if __name__ == "__main__":
     stock = StockCode()
