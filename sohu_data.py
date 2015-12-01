@@ -66,7 +66,7 @@ class SohuData:
     def store_csv(self, inputfile='/tmp/stock.csv'):
         if self.data_json != None:
             csv_data = csvdata(inputfile)
-            csv_data.write(self.data_json['hq']
+            csv_data.write(self.data_json['hq'])
         else:
             print "Store to " + inputfile + " failed. Data not fetched, maybe code error."
 
