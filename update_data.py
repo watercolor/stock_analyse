@@ -1,9 +1,11 @@
 # coding=utf-8
 
 import os
+from datetime import date
 from parse_yaml import *
 from sohu_data import *
 from stockelem import *
+from stock_cfg import *
 
 class update_data:
     basedir = os.getcwd() + os.sep + "stockdata"
@@ -34,13 +36,14 @@ class update_data:
         sohudata.store_csv(csv_file)
 
 stockarray = StockCode()
-
+cfg = stock_cfg()
 basedir = os.getcwd() + os.sep + "stockdata"
-startdate = "20150101"
-enddate = "20151127"
+startdate = cfg.get_startdate()
+enddate = cfg.get_enddate()
+
 if os.path.exists(basedir) == False:
     os.mkdir(basedir)
 
-update_handle = update_data()
+update_handle = update_data(startdate= enddate, enddate=todaystr())
 for code in stockarray:
     update_handle.update(code)

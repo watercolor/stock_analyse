@@ -58,9 +58,9 @@ class csvdata:
 
 
 if __name__ == "__main__":
-    test = csvdata('/tmp/stock.csv')
+    testdata = csvdata('/tmp/stock.csv')
     #test.read()
-    print test.readdate("2015-11-26")
+    print testdata.readdate("2015-11-26")
     tt = []
     aa = ["2015-02-07","14.09","14.09","-0.09","-0.63%","13.95","14.32","1865475","263714.41","1.25%"]
     #tt.append(aa)

@@ -1,9 +1,10 @@
 # coding=utf-8
 import urllib2
 import json, csv, os
-from stockdata import *
-from datetime import date
+
 from csvdata import *
+from util_date import *
+
 class SohuData:
     """ fetch sohu stock data
     """
@@ -11,14 +12,13 @@ class SohuData:
     basecallback = "historySearchHandler"
     def __init__(self, code, startdate=None, enddate=None, period = "d"):
         self.code = code
-        today = date.today()
         if startdate == None:
-            self.startdate = str(today.year) + str(today.month) + str(today.day - 1)
+            self.startdate = todaystr()
         else:
             self.startdate = startdate
 
         if enddate == None:
-            self.enddate = str(today.year) + str(today.month) + str(today.day)
+            self.enddate = todaystr()
         else:
             self.enddate = enddate
         self.period = period
@@ -54,6 +54,7 @@ class SohuData:
     def format_data(self, data):
         try:
             self.data_json = json.loads(data)
+            #print self.data_json['msg']
             if 'hq' not in self.data_json.keys():
                 self.data_json = None
         except ValueError:
@@ -70,8 +71,7 @@ class SohuData:
         else:
             print "Store to " + inputfile + " failed. Data not fetched, maybe code error."
 
-
 if __name__  == "__main__":
-    test = SohuData("600000")#, "20151101", "20151127")
+    test = SohuData("000002")#, "20151101", "20151127")
     test.fetchdata()
     test.store_csv()
