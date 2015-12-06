@@ -2,66 +2,101 @@
 
 import os
 import csv
+from stockelem import *
+
 class csvdata:
+    name_hash = {
+        'date':0,
+        'start_val':1,
+        'end_val':2,
+        'high_val':3,
+        'low_val':4,
+    }
     def __init__(self, file):
         self.file = file
-        self.data = {}
-    def read(self):
-        csvfile = file(self.file, 'r')
-        reader = csv.reader(csvfile)
-        for line in reader:
-            self.data[line[0]] = line
-        csvfile.close()
+        self.data = []
+        self.datadict = {}
+
+    def read(self, reverse = False):
+        if {} == self.datadict:
+            csvfile = file(self.file, 'r')
+            reader = csv.reader(csvfile)
+            for line in reader:
+                self.datadict[line[0]] = line
+            csvfile.close()
+            self.data = sorted(self.datadict.iteritems(), key = lambda d:d[0], reverse = reverse)
 
     def readdate(self, date):
-        if self.data == {}:
-            self.read()
+        self.read()
         try:
-            return self.data[date]
+            return self.datadict[date]
         except KeyError:
             return None
 
 
-    def write(self, list, overwrite = False):
+    def write(self, list, overwrite = False, reverse = False):
+        list.sort()
+        if reverse:
+            list.reverse()
         if not os.path.exists(self.file):
-            csvfile = file(self.file, 'a')
+            csvfile = file(self.file, 'w')
             writer = csv.writer(csvfile)
             #writer.writerow(['日期', '开盘', '收盘', '最高', '最低', '涨跌额', '涨跌幅', '成交量', '成交额', '换手率'])
             writer.writerows(list)
             csvfile.close()
         else:
-            if self.data == {}:
+            if overwrite:
                 self.read()
-            for line in list:
-                if overwrite == False and line[0] in self.data.keys():
-                    continue
-                self.data[line[0]] = line
+                # updata data if set overwrite
+                for line in list:
+                    self.datadict[line[0]] = line
 
-            csvfile = file(self.file, 'wb')
-            writer = csv.writer(csvfile)
-            for date, val in self.data.items():
-                writer.writerow(val)
-            csvfile.close()
+                # sort data
+                self.data = sorted(self.datadict.iteritems(), key = lambda d:d[0], reverse = reverse)
 
-    def add(self, list, overwrite = False):
-        if self.data != {}:
-            for line in list:
-                if overwrite == False and line[0] in self.data.keys():
-                    continue;
-                self.data[line[0]] = line
+                # store data
+                csvfile = file(self.file, 'w')
+                writer = csv.writer(csvfile)
+                for val in self.data:
+                    writer.writerow(val[1])
+                csvfile.close()
+            else:
+                csvfile = file(self.file, 'a')
+                writer = csv.writer(csvfile)
+                #writer.writerow(['日期', '开盘', '收盘', '最高', '最低', '涨跌额', '涨跌幅', '成交量', '成交额', '换手率'])
+                writer.writerows(list)
+                csvfile.close()
+
+    def add(self, list):
+        self.read()
+        # updata data if set overwrite
+        for line in list:
+            self.datadict[line[0]] = line
+
+        # sort data
+        self.data = sorted(self.datadict.iteritems(), key = lambda d:d[0])
+
+    def get_elem_list(self, elemstr):
+        if elemstr not in self.name_hash.keys():
+            return None
+        index = self.name_hash[elemstr]
+        print index
+        result = []
+        self.read()
+        for elem in self.data:
+            result.append([elem[0], elem[1][index]])
+        return  result
 
     def range(self):
         pass
 
     def dump(self):
-        pass
-
+        self.read()
+        for elem in self.data:
+            print elem
 
 if __name__ == "__main__":
     testdata = csvdata('/tmp/stock.csv')
-    #test.read()
-    print testdata.readdate("2015-11-26")
-    tt = []
-    aa = ["2015-02-07","14.09","14.09","-0.09","-0.63%","13.95","14.32","1865475","263714.41","1.25%"]
-    #tt.append(aa)
-    #test.write(tt)
+    #print testdata.readdate("2015-11-26")
+    print testdata.get_elem_list('end_val')
+

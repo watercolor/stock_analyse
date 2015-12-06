@@ -72,6 +72,6 @@ class SohuData:
             print "Store to " + inputfile + " failed. Data not fetched, maybe code error."
 
 if __name__  == "__main__":
-    test = SohuData("000002")#, "20151101", "20151127")
+    test = SohuData("002773", "19900101", "20151204")
     test.fetchdata()
     test.store_csv()
