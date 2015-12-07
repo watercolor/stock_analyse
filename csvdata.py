@@ -80,7 +80,6 @@ class csvdata:
         if elemstr not in self.name_hash.keys():
             return None
         index = self.name_hash[elemstr]
-        print index
         result = []
         self.read()
         for elem in self.data:
