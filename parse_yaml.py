@@ -12,17 +12,19 @@ class StockCode:
 
     def __init__(self):
         self.index = 0
-        with open(self.stockcode_file) as fd:
-            self.stock_codedict = yaml.load(fd)
+        if self.stock_codedict == None:
+            with open(self.stockcode_file) as fd:
+                self.stock_codedict = yaml.load(fd)
 
-        with open(self.stockname_file) as fd:
-            self.stock_namedict = yaml.load(fd)
-
-        for code in self.stock_codedict.keys():
-            prefix = code[:2]
-            if prefix == "30" or prefix == "60" or prefix == "00":
-                self.stock_codelist.append(code)
-        self.stock_codelist.sort()
+        if self.stock_namedict == None:
+            with open(self.stockname_file) as fd:
+                self.stock_namedict = yaml.load(fd)
+        if self.stock_codelist == []:
+            for code in self.stock_codedict.keys():
+                prefix = code[:2]
+                if prefix == "30" or prefix == "60" or prefix == "00":
+                    self.stock_codelist.append(code)
+            self.stock_codelist.sort()
         self.codenum = len(self.stock_codelist)
 
     def getcode(self, name):
@@ -52,5 +54,5 @@ if __name__ == "__main__":
     stock = StockCode()
     for i in stock:
         print i
-    print tt.getname("600000")
+    print stock.getname("600000")
 

@@ -25,10 +25,12 @@ class update_data:
         else:
             self.enddate = enddate
         self.period = period
+        self.stockarray = StockCode()
+        self.basedir = os.getcwd() + os.sep + "stockdata"
 
     def update(self, code):
-        name = stockarray.getname(code)
-        csv_dir = basedir + os.sep + code + '_' + name
+        name = self.stockarray.getname(code)
+        csv_dir = self.basedir + os.sep + code + '_' + name
         if os.path.exists(csv_dir) == False:
             os.mkdir(csv_dir)
         csv_file = csv_dir + os.sep + self.namedict[self.period] + ".csv"
@@ -42,7 +44,7 @@ def update_today(flush = False):
     stockarray = StockCode()
     cfg = stock_cfg()
     basedir = os.getcwd() + os.sep + "stockdata"
-    startdate = cfg.get_enddate()
+    startdate = str(int(cfg.get_enddate()) + 1)
     if flush:
         startdate = "19910101"
     if not os.path.exists(basedir):
@@ -52,6 +54,8 @@ def update_today(flush = False):
     week_handle = update_data(startdate=startdate, enddate=todaystr(), period='w')
     month_handle = update_data(startdate=startdate, enddate=todaystr(), period='m')
     for code in stockarray:
+        #if int(code) < 600279:
+        #    continue
         day_handle.update(code)
         week_handle.update(code)
         month_handle.update(code)
