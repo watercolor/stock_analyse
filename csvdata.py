@@ -25,6 +25,7 @@ class csvdata:
                 self.datadict[line[0]] = line
             csvfile.close()
             self.data = sorted(self.datadict.iteritems(), key = lambda d:d[0], reverse = reverse)
+            #data 为列表结构,每一项数据为(date, data)
 
     def readdate(self, date):
         self.read()
@@ -76,6 +77,32 @@ class csvdata:
         # sort data
         self.data = sorted(self.datadict.iteritems(), key = lambda d:d[0])
 
+    def read_last(self):
+        self.read()
+        return self.data[-1][1]
+
+    def read_last_date(self):
+        self.read()
+        return  self.data[-1][0]
+
+    def del_date(self, date):
+        try:
+            del self.datadict[date]
+            for i, line in enumerate(self.data):
+                if line[0] == date:
+                    del self.data[i]
+        except KeyError:
+            return
+
+    def del_last(self):
+        try:
+            lastdate = self.data[-1][0]
+            del self.data[-1]
+            del self.datadict[lastdate]
+        except KeyError:
+            return
+
+    # 获得一个特定数据的日期+ 数据 列表
     def get_elem_list(self, elemstr):
         if elemstr not in self.name_hash.keys():
             return None
