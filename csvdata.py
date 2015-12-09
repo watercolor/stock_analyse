@@ -18,7 +18,7 @@ class csvdata:
         self.datadict = {}
 
     def read(self, reverse = False):
-        if {} == self.datadict:
+        if {} == self.datadict and os.path.exists(self.file):
             csvfile = file(self.file, 'r')
             reader = csv.reader(csvfile)
             for line in reader:
@@ -86,6 +86,7 @@ class csvdata:
         return  self.data[-1][0]
 
     def del_date(self, date):
+        self.read()
         try:
             del self.datadict[date]
             for i, line in enumerate(self.data):
@@ -94,7 +95,12 @@ class csvdata:
         except KeyError:
             return
 
+    def len(self):
+        self.read()
+        return len(self.data)
+
     def del_last(self):
+        self.read()
         try:
             lastdate = self.data[-1][0]
             del self.data[-1]

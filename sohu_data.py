@@ -67,11 +67,28 @@ class SohuData:
     def store_csv(self, inputfile='/tmp/stock.csv'):
         if self.data_json != None:
             csv_data = csvdata(inputfile)
-            csv_data.write(self.data_json['hq'])
+            if self.period == 'd':
+                csv_data.write(self.data_json['hq'])
+            else:
+                # judge whether need delete last line to update week or month data
+                if csv_data.len() >= 2:
+                    judge_date = csv_data.data[-2][0]
+                    #print "judge_date: " + judge_date
+                    recv_first_date = self.data_json['hq'][0][0]
+                    #print "recv: " + recv_first_date
+                    sub_judge = 0
+                    if self.period == 'w':
+                        sub_judge = 7
+                    elif self.period == 'm':
+                        sub_judge = month_days(recv_first_date)
+                    #print "subjudge: %d"%(sub_judge)
+                    if date_sub(recv_first_date, judge_date) <= sub_judge:
+                        csv_data.del_last()
+                csv_data.write(self.data_json['hq'], overwrite= True)
         else:
             print "Store to " + inputfile + " failed. Data not fetched, maybe code error."
 
 if __name__  == "__main__":
-    test = SohuData("002773", "19900101", "20151204")
+    test = SohuData("002773", "19900101", "20151115", period='w')
     test.fetchdata()
     test.store_csv()

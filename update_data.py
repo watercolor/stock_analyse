@@ -28,12 +28,15 @@ class update_data:
         self.stockarray = StockCode()
         self.basedir = os.getcwd() + os.sep + "stockdata"
 
-    def update(self, code):
+    def update(self, code, savefile=None):
         name = self.stockarray.getname(code)
         csv_dir = self.basedir + os.sep + code + '_' + name
         if os.path.exists(csv_dir) == False:
             os.mkdir(csv_dir)
-        csv_file = csv_dir + os.sep + self.namedict[self.period] + ".csv"
+        if savefile != None:
+            csv_file = savefile
+        else:
+            csv_file = csv_dir + os.sep + self.namedict[self.period] + ".csv"
         print "Fetch %-6s(%s)" % (name, code)
         sohudata = SohuData(code, self.startdate, self.enddate, self.period)
         sohudata.fetchdata()
@@ -83,3 +86,5 @@ def macd_calc():
             #    print "the full name of the file is:" + os.path.join(parent,filename) #输出文件路径信息
 
 update_today()
+#week_handle = update_data(startdate="20151209", enddate=todaystr(), period='m')
+#week_handle.update('600000', savefile='/tmp/month.csv')
