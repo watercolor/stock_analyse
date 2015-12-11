@@ -7,7 +7,6 @@ from util_date import *
 from macd import *
 
 class update_data:
-    basedir = os.getcwd() + os.sep + "stockdata"
     namedict = {
         "d": "day",
         "w": "week",
@@ -27,6 +26,13 @@ class update_data:
         self.period = period
         self.stockarray = StockCode()
         self.basedir = os.getcwd() + os.sep + "stockdata"
+        if not os.path.exists(self.basedir):
+            os.mkdir(self.basedir)
+
+    def set_save_dir(self, dirpath):
+        self.basedir = dirpath
+        if not os.path.exists(self.basedir):
+            os.mkdir(self.basedir)
 
     def update(self, code, savefile=None):
         name = self.stockarray.getname(code)
@@ -46,17 +52,13 @@ class update_data:
 def update_today(flush = False):
     stockarray = StockCode()
     cfg = stock_cfg()
-    basedir = os.getcwd() + os.sep + "stockdata"
-    lastdate_file = os.getcwd() + os.sep + "last_record_date"
+    lastdate_file = os.getcwd() + os.sep + "stockdata" + os.sep + "last_record_date"
     with open(lastdate_file) as fd:
         lastdate = fd.read()
         startdate = next_n_day(lastdate, 1)
 
     if flush:
         startdate = "19910101"
-
-    if not os.path.exists(basedir):
-        os.mkdir(basedir)
 
     day_handle = update_data(startdate=startdate, enddate=todaystr(), period='d')
     week_handle = update_data(startdate=startdate, enddate=todaystr(), period='w')
