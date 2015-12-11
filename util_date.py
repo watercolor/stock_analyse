@@ -1,5 +1,5 @@
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 def gen_datestr(today_val):
     y = str(today_val.year)
     m = str(today_val.month)
@@ -36,3 +36,25 @@ def month_days(datestr):
         day_calc += 1
 
     return day_calc
+
+def issameweek(day1, day2):
+    d1_y, d1_m, d1_d = int(day1[:4]), int(day1[5:7]), int(day1[8:])
+    d2_y, d2_m, d2_d = int(day2[:4]), int(day2[5:7]), int(day2[8:])
+    cal1 =  datetime(d1_y, d1_m, d1_d)
+    cal2 =  datetime(d2_y, d2_m, d2_d)
+    return cal1.isocalendar()[1] == cal2.isocalendar()[1]
+
+def issamemonth(day1, day2):
+    d1_m = int(day1[5:7])
+    d2_m = int(day2[5:7])
+    if d1_m == d2_m:
+        return True
+    else:
+        return False
+
+def next_n_day(datestr, number):
+    d1_y, d1_m, d1_d = int(datestr[:4]), int(datestr[4:6]), int(datestr[6:])
+    olddate = datetime(d1_y, d1_m, d1_d)
+    newdate = olddate + timedelta(number)
+    newstr = str(newdate.year) + str(newdate.month) + str(newdate.day)
+    return newstr

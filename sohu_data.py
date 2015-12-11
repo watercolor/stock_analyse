@@ -71,20 +71,20 @@ class SohuData:
                 csv_data.write(self.data_json['hq'])
             else:
                 # judge whether need delete last line to update week or month data
-                if csv_data.len() >= 2:
-                    judge_date = csv_data.data[-2][0]
-                    #print "judge_date: " + judge_date
+                if csv_data.len() >= 1:
+                    last_date = csv_data.read_last_date()
                     recv_first_date = self.data_json['hq'][0][0]
-                    #print "recv: " + recv_first_date
-                    sub_judge = 0
-                    if self.period == 'w':
-                        sub_judge = 7
-                    elif self.period == 'm':
-                        sub_judge = month_days(recv_first_date)
-                    #print "subjudge: %d"%(sub_judge)
-                    if date_sub(recv_first_date, judge_date) <= sub_judge:
+                    #print "recvdate: " + recv_first_date + " last_date: " + last_date
+                    deletelast = False
+                    if self.period == 'w' and issameweek(last_date, recv_first_date):
+                        deletelast = True
+                    elif self.period == 'm' and issamemonth(last_date, recv_first_date):
+                        deletelast = True
+                    if deletelast:
                         csv_data.del_last()
-                csv_data.write(self.data_json['hq'], overwrite= True)
+                        csv_data.write(self.data_json['hq'], overwrite= True)
+                    else:
+                        csv_data.write(self.data_json['hq'])
         else:
             print "Store to " + inputfile + " failed. Data not fetched, maybe code error."
 

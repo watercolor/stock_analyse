@@ -47,9 +47,14 @@ def update_today(flush = False):
     stockarray = StockCode()
     cfg = stock_cfg()
     basedir = os.getcwd() + os.sep + "stockdata"
-    startdate = str(int(cfg.get_enddate()) + 1)
+    lastdate_file = os.getcwd() + os.sep + "last_record_date"
+    with open(lastdate_file) as fd:
+        lastdate = fd.read()
+        startdate = next_n_day(lastdate, 1)
+
     if flush:
         startdate = "19910101"
+
     if not os.path.exists(basedir):
         os.mkdir(basedir)
 
@@ -62,6 +67,9 @@ def update_today(flush = False):
         day_handle.update(code)
         week_handle.update(code)
         month_handle.update(code)
+
+    with open(lastdate_file, 'w') as fd:
+        fd.write(todaystr())
 
 def macd_calc():
     basedir = os.getcwd() + os.sep + "stockdata"
@@ -86,5 +94,3 @@ def macd_calc():
             #    print "the full name of the file is:" + os.path.join(parent,filename) #输出文件路径信息
 
 update_today()
-#week_handle = update_data(startdate="20151209", enddate=todaystr(), period='m')
-#week_handle.update('600000', savefile='/tmp/month.csv')
