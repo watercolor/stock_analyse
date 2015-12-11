@@ -2,7 +2,7 @@
 import yaml
 import os
 class stock_cfg:
-    cfgfile = os.getcwd() + os.sep + "stock_cfg.yaml"
+    cfgfile = os.getcwd() + os.sep + "config.yaml"
     cfg = None
     def __init__(self):
         if self.cfg == None:
