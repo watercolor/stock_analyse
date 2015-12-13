@@ -53,11 +53,15 @@ def update_today(flush = False):
     stockarray = StockCode()
     cfg = stock_cfg()
     lastdate_file = os.getcwd() + os.sep + "stockdata" + os.sep + "last_record_date"
-    with open(lastdate_file) as fd:
-        lastdate = fd.read()
-        startdate = next_n_day(lastdate, 1)
 
-    if flush:
+    try:
+        if flush:
+            startdate = "19910101"
+        else:
+            with open(lastdate_file) as fd:
+                lastdate = fd.read()
+                startdate = next_n_day(lastdate, 1)
+    except:
         startdate = "19910101"
 
     day_handle = update_data(startdate=startdate, enddate=todaystr(), period='d')
@@ -73,26 +77,35 @@ def update_today(flush = False):
     with open(lastdate_file, 'w') as fd:
         fd.write(todaystr())
 
-def macd_calc():
-    basedir = os.getcwd() + os.sep + "stockdata"
+def algo_update():
+    walk_all_file_do(macd_update)
+
+def macd_update(datafile, base_path):
     ma = macd()
+    datafile_path = os.path.join(base_path, datafile)
+    if os.path.exists(datafile_path):
+        macdfile_name = datafile.split('.')[0] + '_macd.csv'
+        macdfile_path = os.path.join(base_path, macdfile_name)
+        data = csvdata(datafile_path)
+        if os.path.exists(macdfile_path):
+            ma.update(macdfile_path, data.read_last())
+            print "Update " + macdfile_path + ' done'
+        else:
+            end_price_all = data.get_elem_list('end_val')
+            ma.calc(end_price_all)
+            ma.store(macdfile_path)
+            print "Create " + macdfile_path + ' done'
+
+
+def walk_all_file_do(func):
+    basefiles = ['day.csv', 'week.csv', 'month.csv']
+    basedir = os.getcwd() + os.sep + "stockdata"
     for parent,dirnames,filenames in os.walk(basedir):
         for dirname in  dirnames:
             fullpath = os.path.join(parent,dirname)
             print "Enter " + fullpath
-            filelist = os.listdir(fullpath)
-            #print filelist
-            for filename in filelist:
-                filename_full = fullpath + os.sep + filename
-                tmp = filename.split('.')
-                macd_name = fullpath + os.sep + tmp[0] + '_macd.csv'
-                #print filename_full
-                data = csvdata(filename_full)
-                ma.calc(data.get_elem_list('end_val'))
-                ma.store(macd_name)
-                print "Cacl " + macd_name + ' done'
-            #    print "parent is:" + parent
-            #    print "filename is:" + filename
-            #    print "the full name of the file is:" + os.path.join(parent,filename) #输出文件路径信息
+            for datafile in basefiles:
+                func(datafile, fullpath)
 
 update_today()
+algo_update()

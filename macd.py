@@ -2,6 +2,7 @@
 
 from stock_cfg import *
 from csvdata import *
+from stockelem import *
 class macd:
     '''
     EMA（12）= 前一日EMA（12）×11/13＋今日收盘价×2/13
@@ -11,6 +12,13 @@ class macd:
     MACD    = 2×(DIFF－DEA)
 
     '''
+    IDX_DATE = 0
+    IDX_DIFF = 1
+    IDX_DEA_IDX = 2
+    IDX_MACD_IDX = 3
+    IDX_EMA_SHORT = 4
+    IDX_EMA_LONG = 5
+    IDX_DEA_IDX2 = 6
     def __init__(self, short_day = 12, long_day = 26, m_day= 9):
         self.cfg = stock_cfg()
         cfg_macd = self.cfg.get_macd()
@@ -23,6 +31,7 @@ class macd:
             self.long = long_day + 1
             self.m = m_day + 1
         self.result_list = []
+        self.store_file = None
 
     def calc(self, data_list):
         ema_short = 0.0
@@ -47,8 +56,31 @@ class macd:
                 dea = round(dea, 4)
 
                 macd = 2*(diff - dea)
-                result = [data_date, round(diff, 3), round(dea, 3), round(macd, 3)]
+                result = [data_date, round(diff, 3), round(dea, 3), round(macd, 3), ema_short, ema_long, dea]
                 self.result_list.append(result)
+
+    def set_store_file(self, file):
+        self.store_file = file
+
+    def update(self, macd_file, today_data):
+        macddata = csvdata(macd_file)
+        lastdata = macddata.read_last()
+        ema_short = float(lastdata[self.IDX_EMA_SHORT])
+        ema_long = float(lastdata[self.IDX_EMA_LONG])
+        dea = float(lastdata[self.IDX_DEA_IDX2])
+        end_val = float(today_data[ENDPRICE])
+
+        ema_short = ema_short * (self.short - 2)/self.short + end_val * 2/self.short
+        ema_long = ema_long * (self.long - 2)/self.long + end_val * 2/self.long
+        ema_short = round(ema_short, 4)
+        ema_long = round(ema_long, 4)
+
+        diff = ema_short - ema_long
+        dea = dea * (self.m - 2)/self.m + diff * 2/self.m
+        dea = round(dea, 4)
+        macd = 2*(diff - dea)
+        result = [today_data[DATE], round(diff, 3), round(dea, 3), round(macd, 3), ema_short, ema_long, dea]
+        macddata.write([result])
 
     def store(self, output_file):
         if self.result_list:
@@ -58,7 +90,11 @@ class macd:
 
 
 if __name__ == '__main__':
-    src = csvdata('/tmp/stock.csv')
+    path = os.getcwd() + os.sep + 'stockdata' + os.sep + "000002_万科A" + os.sep
     ma = macd()
-    ma.calc(src.get_elem_list('end_val'))
-    ma.store('/tmp/macd.csv')
+    data = csvdata(path + 'day.csv')
+    ma.update(path + 'day_macd.csv', data.read_last())
+    #src = csvdata('/tmp/stock.csv')
+    #ma = macd()
+    #ma.calc(src.get_elem_list('end_val'))
+    #ma.store('/tmp/macd.csv')

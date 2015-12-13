@@ -9,8 +9,8 @@ class csvdata:
         'date':0,
         'start_val':1,
         'end_val':2,
-        'high_val':3,
-        'low_val':4,
+        'high_val':6,
+        'low_val':5,
     }
     def __init__(self, file):
         self.file = file
