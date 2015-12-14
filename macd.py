@@ -3,6 +3,7 @@
 from stock_cfg import *
 from csvdata import *
 from stockelem import *
+from util_date import *
 class macd:
     '''
     EMA（12）= 前一日EMA（12）×11/13＋今日收盘价×2/13
@@ -62,7 +63,7 @@ class macd:
     def set_store_file(self, file):
         self.store_file = file
 
-    def update(self, macd_file, today_data):
+    def update(self, macd_file, today_data, period='d'):
         macddata = csvdata(macd_file)
         lastdata = macddata.read_last()
         ema_short = float(lastdata[self.IDX_EMA_SHORT])
@@ -80,7 +81,7 @@ class macd:
         dea = round(dea, 4)
         macd = 2*(diff - dea)
         result = [today_data[DATE], round(diff, 3), round(dea, 3), round(macd, 3), ema_short, ema_long, dea]
-        macddata.write([result])
+        macddata.append_data([result], period)
 
     def store(self, output_file):
         if self.result_list:

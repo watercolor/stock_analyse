@@ -3,7 +3,7 @@
 import os
 import csv
 from stockelem import *
-
+from util_date import *
 class csvdata:
     name_hash = {
         'date':0,
@@ -126,6 +126,24 @@ class csvdata:
         self.read()
         for elem in self.data:
             print elem
+
+    def append_data(self, datalist, period='d'):
+        if self.len() > 0 and period != 'd':
+            last_date = self.read_last_date()
+            recv_first_date = datalist[0][0]
+            #print "recvdate: " + recv_first_date + " last_date: " + last_date
+            deletelast = False
+            if period == 'w' and issameweek(last_date, recv_first_date):
+                deletelast = True
+            elif period == 'm' and issamemonth(last_date, recv_first_date):
+                deletelast = True
+            if deletelast:
+                self.del_last()
+                self.write(datalist, overwrite= True)
+            else:
+                self.write(datalist)
+        else:
+            self.write(datalist)
 
 if __name__ == "__main__":
     testdata = csvdata('/tmp/stock.csv')
