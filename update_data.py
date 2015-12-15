@@ -5,7 +5,7 @@ from sohu_data import *
 from stock_cfg import *
 from util_date import *
 from macd import *
-
+from ma import *
 class update_data:
     namedict = {
         "d": "day",
@@ -52,7 +52,7 @@ class update_data:
 def update_today(flush = False):
     stockarray = StockCode()
     cfg = stock_cfg()
-    lastdate_file = os.getcwd() + os.sep + "stockdata" + os.sep + "last_record_date"
+    lastdate_file = os.path.join(os.getcwd(), "stockdata", "last_record_date")
 
     try:
         if flush:
@@ -79,27 +79,44 @@ def update_today(flush = False):
 
 def algo_update():
     walk_all_file_do(macd_update)
+    walk_all_file_do(ma_update)
+
 
 def macd_update(datafile, base_path):
-    ma = macd()
+    macd_obj = macd()
     datafile_path = os.path.join(base_path, datafile)
     if os.path.exists(datafile_path):
         macdfile_name = datafile.split('.')[0] + '_macd.csv'
         macdfile_path = os.path.join(base_path, macdfile_name)
         data = csvdata(datafile_path)
         if os.path.exists(macdfile_path):
-            ma.update(macdfile_path, data.read_last())
+            macd_obj.update(macdfile_path, data.read_last())
             print "Update " + macdfile_path + ' done'
         else:
             end_price_all = data.get_elem_list('end_val')
-            ma.calc(end_price_all)
-            ma.store(macdfile_path)
+            macd_obj.calc(end_price_all)
+            macd_obj.store(macdfile_path)
             print "Create " + macdfile_path + ' done'
 
+def ma_update(datafile, base_path):
+    ma_obj = ma()
+    datafile_path = os.path.join(base_path, datafile)
+    if os.path.exists(datafile_path):
+        mafile_name = datafile.split('.')[0] + '_ma.csv'
+        mafile_path = os.path.join(base_path, mafile_name)
+        data = csvdata(datafile_path)
+        if os.path.exists(mafile_path):
+            ma_obj.update(mafile_path, data.read_last())
+            print "Update " + mafile_path + ' done'
+        else:
+            end_price_all = data.get_elem_list('end_val')
+            ma_obj.calc(end_price_all)
+            ma_obj.store(mafile_path)
+            print "Create " + mafile_path + ' done'
 
 def walk_all_file_do(func):
     basefiles = ['day.csv', 'week.csv', 'month.csv']
-    basedir = os.getcwd() + os.sep + "stockdata"
+    basedir = os.path.join(os.getcwd() ,"stockdata")
     for parent,dirnames,filenames in os.walk(basedir):
         for dirname in  dirnames:
             fullpath = os.path.join(parent,dirname)
