@@ -79,11 +79,24 @@ class csvdata:
 
     def read_last(self):
         self.read()
-        return self.data[-1][1]
+        try:
+            return self.data[-1][1]
+        except IndexError:
+            return None
+
+    def read_last_n(self, num):
+        self.read()
+        try:
+            return map(lambda x: x[1], self.data[-num:])
+        except IndexError:
+            return None
 
     def read_last_date(self):
         self.read()
-        return  self.data[-1][0]
+        try:
+            return  self.data[-1][0]
+        except:
+            return None
 
     def del_date(self, date):
         self.read()
@@ -119,6 +132,14 @@ class csvdata:
             result.append([elem[0], elem[1][index]])
         return  result
 
+    def get_elem_list_last_n(self,elemstr, lastnum):
+        try:
+            index = self.name_hash[elemstr]
+            self.read()
+            return map(lambda x: [x[0],x[1][index]], self.data[-lastnum:])
+        except KeyError:
+            return None
+
     def range(self):
         pass
 
@@ -148,5 +169,4 @@ class csvdata:
 if __name__ == "__main__":
     testdata = csvdata('/tmp/stock.csv')
     #print testdata.readdate("2015-11-26")
-    print testdata.get_elem_list('end_val')
-
+    print testdata.get_elem_list_last_n('end_val', 2)

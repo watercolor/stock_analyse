@@ -46,6 +46,8 @@ class macd:
                 ema_short = end_val
                 ema_long = end_val
                 dea = 0.0
+                result = [data_date, round(0.0, 3), round(dea, 3), round(0.0, 3), ema_short, ema_long, dea]
+                self.result_list.append(result)
             else:
                 ema_short = ema_short * (self.short - 2)/self.short + end_val * 2/self.short
                 ema_long = ema_long * (self.long - 2)/self.long + end_val * 2/self.long
@@ -66,22 +68,29 @@ class macd:
     def update(self, macd_file, today_data, period='d'):
         macddata = csvdata(macd_file)
         lastdata = macddata.read_last()
+        if lastdata == None:
+            self.calc(today_data)
+            self.store(macd_file)
+            return
+
         ema_short = float(lastdata[self.IDX_EMA_SHORT])
         ema_long = float(lastdata[self.IDX_EMA_LONG])
         dea = float(lastdata[self.IDX_DEA_IDX2])
-        end_val = float(today_data[ENDPRICE])
+        result = []
+        for data in today_data:
+            end_price = float(data[1])
 
-        ema_short = ema_short * (self.short - 2)/self.short + end_val * 2/self.short
-        ema_long = ema_long * (self.long - 2)/self.long + end_val * 2/self.long
-        ema_short = round(ema_short, 4)
-        ema_long = round(ema_long, 4)
+            ema_short = ema_short * (self.short - 2)/self.short + end_price * 2/self.short
+            ema_long = ema_long * (self.long - 2)/self.long + end_price * 2/self.long
+            ema_short = round(ema_short, 4)
+            ema_long = round(ema_long, 4)
 
-        diff = ema_short - ema_long
-        dea = dea * (self.m - 2)/self.m + diff * 2/self.m
-        dea = round(dea, 4)
-        macd = 2*(diff - dea)
-        result = [today_data[DATE], round(diff, 3), round(dea, 3), round(macd, 3), ema_short, ema_long, dea]
-        macddata.append_data([result], period)
+            diff = ema_short - ema_long
+            dea = dea * (self.m - 2)/self.m + diff * 2/self.m
+            dea = round(dea, 4)
+            macd = 2*(diff - dea)
+            result.append([data[0], round(diff, 3), round(dea, 3), round(macd, 3), ema_short, ema_long, dea])
+        macddata.append_data(result, period)
 
     def store(self, output_file):
         if self.result_list:

@@ -85,6 +85,8 @@ class SohuData:
                         csv_data.write(self.data_json['hq'], overwrite= True)
                     else:
                         csv_data.write(self.data_json['hq'])
+                else:
+                    csv_data.write(self.data_json['hq'])
         else:
             print "Store to " + inputfile + " failed. Data not fetched, maybe code error."
 

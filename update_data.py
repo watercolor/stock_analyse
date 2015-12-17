@@ -77,9 +77,20 @@ def update_today(flush = False):
     with open(lastdate_file, 'w') as fd:
         fd.write(todaystr())
 
+def get_period(filename):
+    period_dict = {
+          'day.csv': 'd',
+         'week.csv': 'w',
+        'month.csv': 'm'
+    }
+    try:
+        return period_dict[filename]
+    except KeyError:
+        return 'd'
+
 def algo_update():
     walk_all_file_do(macd_update)
-    walk_all_file_do(ma_update)
+    #walk_all_file_do(ma_update)
 
 
 def macd_update(datafile, base_path):
@@ -90,7 +101,8 @@ def macd_update(datafile, base_path):
         macdfile_path = os.path.join(base_path, macdfile_name)
         data = csvdata(datafile_path)
         if os.path.exists(macdfile_path):
-            macd_obj.update(macdfile_path, data.read_last())
+            price_data = data.get_elem_list_last_n('end_val', 1)
+            macd_obj.update(macdfile_path, price_data, period=get_period(datafile))
             print "Update " + macdfile_path + ' done'
         else:
             end_price_all = data.get_elem_list('end_val')
@@ -106,7 +118,8 @@ def ma_update(datafile, base_path):
         mafile_path = os.path.join(base_path, mafile_name)
         data = csvdata(datafile_path)
         if os.path.exists(mafile_path):
-            ma_obj.update(mafile_path, data.read_last())
+            price_data = data.get_elem_list_last_n('end_val', 1)
+            ma_obj.update(mafile_path, price_data, period=get_period(datafile))
             print "Update " + mafile_path + ' done'
         else:
             end_price_all = data.get_elem_list('end_val')
