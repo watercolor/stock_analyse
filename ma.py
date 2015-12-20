@@ -55,7 +55,8 @@ class ma:
         queue = [[], [], [], [], [], []]   # each hold queue for hold prev n data
         madata = csvdata(ma_file)
         data = csvdata(datafile)
-        end_price_array = data.get_elem_list_last_n('end_val', self.macfg[-1])
+        end_price_array = data.get_elem_list_last_n('end_val', self.macfg[-1] + len(datalist))
+        end_price_array = end_price_array[:-len(datalist)]
         end_price_number = len(end_price_array)
         ma_last_data = madata.read_last()
         new_ma_result_list = []
@@ -66,11 +67,11 @@ class ma:
             ma_result[idx] = ma_last_data[idx + 1] # +1 for first is date
 
             if end_price_number < ma_num:
-                last_n_data = map(lambda  x: x[1], end_price_array[-end_price_number:])
+                last_n_data = map(lambda  x: float(x[1]), end_price_array[-end_price_number:])
                 prev_manum_price[idx] = None
             else:
-                last_n_data = map(lambda  x: x[1], end_price_array[1-ma_num:])
-                prev_manum_price[idx] = end_price_array[-ma_num][1]
+                last_n_data = map(lambda  x: float(x[1]), end_price_array[1-ma_num:])
+                prev_manum_price[idx] = float(end_price_array[-ma_num][1])
             data_queue.extend(last_n_data)
 
         for i, data in enumerate(datalist):
@@ -94,8 +95,13 @@ class ma:
                     prev_manum_price[idx] = data_queue.pop(0)
             result = [datadate]
             for i in range(self.ma_number):
-                round_price = round(ma_result[i], 3)
-                result.append(round_price)
+                try:
+                    if round_price != 0.0:
+                        round_price = round(ma_result[i], 3)
+                    result.append(round_price)
+                except:
+                    print ma_result[i]
+                    print i
             new_ma_result_list.append(result)
         # finally add all calc result to db
         madata.append_data(new_ma_result_list, period)
@@ -107,8 +113,9 @@ class ma:
             self.result_list = []
 
 if __name__ == '__main__':
-    path = os.path.join(os.getcwd(), 'stockdata', '000002_万科A')
+    path = os.path.join(os.getcwd(), 'stockdata', '002773_康弘药业')
     ma_obj = ma()
     data = csvdata(os.path.join(path, 'day.csv'))
-    ma_obj.calc(data.get_elem_list('end_val'))
-    ma_obj.store(os.path.join(path, 'day_ma.csv'))
+    ma_obj.update(os.path.join(path, 'day_ma.csv'), os.path.join(path, 'day.csv'), data.get_elem_list_last_n('end_val', 3))
+    #ma_obj.calc(data.get_elem_list('end_val'))
+    #ma_obj.store(os.path.join(path, 'day_ma.csv'))
