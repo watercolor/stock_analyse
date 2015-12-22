@@ -57,6 +57,7 @@ class ma:
         data = csvdata(datafile)
         end_price_array = data.get_elem_list_last_n('end_val', self.macfg[-1] + len(datalist))
         end_price_array = end_price_array[:-len(datalist)]
+
         end_price_number = len(end_price_array)
         ma_last_data = madata.read_last()
         new_ma_result_list = []
@@ -64,7 +65,7 @@ class ma:
         for ma_num in self.macfg:
             idx = self.ma_idx[ma_num]
             data_queue = queue[idx]
-            ma_result[idx] = ma_last_data[idx + 1] # +1 for first is date
+            ma_result[idx] = float(ma_last_data[idx + 1]) # +1 for first is date
 
             if end_price_number < ma_num:
                 last_n_data = map(lambda  x: float(x[1]), end_price_array[-end_price_number:])
@@ -96,8 +97,9 @@ class ma:
             result = [datadate]
             for i in range(self.ma_number):
                 try:
-                    if round_price != 0.0:
-                        round_price = round(ma_result[i], 3)
+                    round_price = ma_result[i]
+                    print "i: %s, price: %s, type:%s"%(i, round_price, type(round_price))
+                    round_price = round(round_price, 3)
                     result.append(round_price)
                 except:
                     print ma_result[i]
@@ -113,9 +115,9 @@ class ma:
             self.result_list = []
 
 if __name__ == '__main__':
-    path = os.path.join(os.getcwd(), 'stockdata', '002773_康弘药业')
+    path = os.path.join(os.getcwd(), 'stockdata', '603999_读者传媒')
     ma_obj = ma()
     data = csvdata(os.path.join(path, 'day.csv'))
-    ma_obj.update(os.path.join(path, 'day_ma.csv'), os.path.join(path, 'day.csv'), data.get_elem_list_last_n('end_val', 3))
+    ma_obj.update(os.path.join(path, 'day_ma.csv'), os.path.join(path, 'day.csv'), data.get_elem_list_last_n('end_val', 5))
     #ma_obj.calc(data.get_elem_list('end_val'))
     #ma_obj.store(os.path.join(path, 'day_ma.csv'))

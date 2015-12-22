@@ -140,6 +140,9 @@ class csvdata:
         except KeyError:
             return None
 
+    def get_elem_list_last_n_date(self,elemstr, enddate, prevnum):
+        pass
+
     def range(self):
         pass
 
