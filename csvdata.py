@@ -140,8 +140,25 @@ class csvdata:
         except KeyError:
             return None
 
-    def get_elem_list_last_n_date(self,elemstr, enddate, prevnum):
-        pass
+    def get_elem_list_date_n(self, elemstr, finddate, count):
+        try:
+            self.read()
+            index = self.name_hash[elemstr]
+            date_list = map(lambda x:x[0], self.data)
+            date_index = date_list.index(finddate)
+            if count > 0:
+                if date_index + count > self.len():
+                    ret_data = map(lambda x: [x[0],x[1][index]], self.data[date_index:])
+                else:
+                    ret_data = map(lambda x: [x[0],x[1][index]], self.data[date_index:date_index + count])
+            else:
+                if date_index - count < 0:
+                    ret_data = map(lambda x: [x[0],x[1][index]], self.data[:date_index + 1])
+                else:
+                    ret_data = map(lambda x: [x[0],x[1][index]], self.data[date_index - count:date_index + 1])
+            return ret_data
+        except KeyError, IndexError:
+            return None
 
     def range(self):
         pass
@@ -170,6 +187,5 @@ class csvdata:
             self.write(datalist)
 
 if __name__ == "__main__":
-    testdata = csvdata('/tmp/stock.csv')
-    #print testdata.readdate("2015-11-26")
-    print testdata.get_elem_list_last_n('end_val', 2)
+    testdata = csvdata('/Users/nzm/code/stock_analyse/stockdata/600000_浦发银行/day.csv')
+    print testdata.get_elem_list_date_n('end_val', "2015-12-01", 1)
