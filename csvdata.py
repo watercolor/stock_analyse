@@ -160,6 +160,18 @@ class csvdata:
         except KeyError, IndexError:
             return None
 
+    def get_elem_list_date_range(self, elemstr, startdate, enddate):
+        try:
+            self.read()
+            index = self.name_hash[elemstr]
+            date_list = map(lambda x:x[0], self.data)
+            start_index = date_index(date_list, startdate)
+            end_index = date_index(date_list, enddate, True)
+            ret_data = map(lambda x: [x[0],x[1][index]], self.data[start_index : end_index + 1])
+            return ret_data
+        except (KeyError, IndexError):
+            return None
+
     def range(self):
         pass
 
@@ -188,4 +200,4 @@ class csvdata:
 
 if __name__ == "__main__":
     testdata = csvdata('/Users/nzm/code/stock_analyse/stockdata/600000_浦发银行/day.csv')
-    print testdata.get_elem_list_date_n('end_val', "2015-12-01", 1)
+    print testdata.get_elem_list_date_range('end_val', "2015-12-01", "2015-12-22")

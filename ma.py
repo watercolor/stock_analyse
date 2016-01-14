@@ -98,7 +98,7 @@ class ma:
             for i in range(self.ma_number):
                 try:
                     round_price = ma_result[i]
-                    print "i: %s, price: %s, type:%s"%(i, round_price, type(round_price))
+                    #print "i: %s, price: %s, type:%s"%(i, round_price, type(round_price))
                     round_price = round(round_price, 3)
                     result.append(round_price)
                 except:

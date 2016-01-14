@@ -1,4 +1,4 @@
-
+import time
 from datetime import date, datetime, timedelta
 def gen_datestr(today_val):
     y = str(today_val.year)
@@ -38,10 +38,8 @@ def month_days(datestr):
     return day_calc
 
 def issameweek(day1, day2):
-    d1_y, d1_m, d1_d = int(day1[:4]), int(day1[5:7]), int(day1[8:])
-    d2_y, d2_m, d2_d = int(day2[:4]), int(day2[5:7]), int(day2[8:])
-    cal1 =  datetime(d1_y, d1_m, d1_d)
-    cal2 =  datetime(d2_y, d2_m, d2_d)
+    cal1 =  format_date(day1)
+    cal2 =  format_date(day2)
     return cal1.isocalendar()[1] == cal2.isocalendar()[1]
 
 def issamemonth(day1, day2):
@@ -53,8 +51,47 @@ def issamemonth(day1, day2):
         return False
 
 def next_n_day(datestr, number):
-    d1_y, d1_m, d1_d = int(datestr[:4]), int(datestr[4:6]), int(datestr[6:])
-    olddate = datetime(d1_y, d1_m, d1_d)
+    olddate = format_date(datestr)
     newdate = olddate + timedelta(number)
-    newstr = str(newdate.year) + str(newdate.month) + str(newdate.day)
+    if '-' in datestr:
+        newstr = str(newdate.year) + "-%02d"%(newdate.month) + "-%02d"%(newdate.day)
+    else:
+        newstr = str(newdate.year) + "%02d"%(newdate.month) + "%02d"%(newdate.day)
     return newstr
+
+def format_date(datestr):
+    if '-' in datestr:
+        return datetime.strptime(datestr, "%Y-%m-%d")
+    else:
+        return datetime.strptime(datestr, "%Y%m%d")
+
+def date_index(date_list, finddate,left_find=False):
+    outrange = False
+    if finddate in date_list:
+        return date_list.index(finddate)
+
+    if left_find:
+        enddate = format_date(date_list[0])
+    else:
+        enddate = format_date(date_list[-1])
+    while finddate not in date_list:
+        if left_find:
+            finddate = next_n_day(finddate, -1)
+            if format_date(finddate) < enddate:
+                outrange = True
+                break
+        else:
+            finddate = next_n_day(finddate, 1)
+            if format_date(finddate) > enddate:
+                outrange = True
+                break;
+
+    if outrange == False:
+        return date_list.index(finddate)
+    else:
+        return None
+
+
+#ddd=["1990-01-01", "1990-01-02", "1990-01-04", "1990-01-06"]
+#print date_index(ddd, "1989-12-31", False)
+

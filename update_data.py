@@ -90,7 +90,7 @@ def get_period(filename):
 
 def algo_update():
     walk_all_file_do(macd_update)
-    #walk_all_file_do(ma_update)
+    walk_all_file_do(ma_update)
 
 
 def macd_update(datafile, base_path):
@@ -119,7 +119,9 @@ def ma_update(datafile, base_path):
         data = csvdata(datafile_path)
         if os.path.exists(mafile_path):
             price_data = data.get_elem_list_last_n('end_val', 1)
-            ma_obj.update(mafile_path, price_data, period=get_period(datafile))
+            #price_data = data.get_elem_list_date_range('end_val', "2015-12-16", "2016-01-14")
+            #print price_data
+            ma_obj.update(mafile_path, datafile_path, price_data, period=get_period(datafile))
             print "Update " + mafile_path + ' done'
         else:
             end_price_all = data.get_elem_list('end_val')
@@ -132,6 +134,8 @@ def walk_all_file_do(func):
     basedir = os.path.join(os.getcwd() ,"stockdata")
     for parent,dirnames,filenames in os.walk(basedir):
         for dirname in  dirnames:
+            #if dirname < "000589":
+            #    continue
             fullpath = os.path.join(parent,dirname)
             print "Enter " + fullpath
             for datafile in basefiles:
