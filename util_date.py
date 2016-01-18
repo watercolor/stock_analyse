@@ -91,6 +91,28 @@ def date_index(date_list, finddate,left_find=False):
     else:
         return None
 
+class date_file:
+    def __init__(self, datefile = None):
+        self.lastdate = None
+        if datefile ==  None:
+            self.lastdate_file = os.path.join(os.getcwd(), "stockdata", "last_record_date")
+        else
+            self.lastdate_file = datefile
+        with open(self.lastdate_file) as fd:
+            self.lastdate = fd.read()
+
+    def getnext(self, flush = False, next_n = 1):
+        if flush:
+            return "19910101"
+        else:
+            return next_n_day(self.lastdate, next_n)
+
+    def getdate(self):
+        return self.lastdate
+
+    def update(self, datestr = todaystr()):
+        with open(self.lastdate_file, 'w') as fd:
+            fd.write(datestr)
 
 #ddd=["1990-01-01", "1990-01-02", "1990-01-04", "1990-01-06"]
 #print date_index(ddd, "1989-12-31", False)

@@ -52,17 +52,8 @@ class update_data:
 def update_today(flush = False):
     stockarray = StockCode()
     cfg = stock_cfg()
-    lastdate_file = os.path.join(os.getcwd(), "stockdata", "last_record_date")
-
-    try:
-        if flush:
-            startdate = "19910101"
-        else:
-            with open(lastdate_file) as fd:
-                lastdate = fd.read()
-                startdate = next_n_day(lastdate, 1)
-    except:
-        startdate = "19910101"
+    datefile = date_file()
+    startdate = datefile.getnext()
 
     day_handle = update_data(startdate=startdate, enddate=todaystr(), period='d')
     week_handle = update_data(startdate=startdate, enddate=todaystr(), period='w')
@@ -74,8 +65,6 @@ def update_today(flush = False):
         week_handle.update(code)
         month_handle.update(code)
 
-    with open(lastdate_file, 'w') as fd:
-        fd.write(todaystr())
 
 def get_period(filename):
     period_dict = {
@@ -141,5 +130,7 @@ def walk_all_file_do(func):
             for datafile in basefiles:
                 func(datafile, fullpath)
 
+datefile=date_file()
 update_today()
 algo_update()
+datefile.update()
