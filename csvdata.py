@@ -3,19 +3,25 @@
 import os
 import csv
 from stockelem import *
-
+from util_date import *
 class csvdata:
     name_hash = {
         'date':0,
         'start_val':1,
         'end_val':2,
-        'high_val':3,
-        'low_val':4,
+        'diff':3,
+        'diff_ratio':4,
+        'high_val':6,
+        'low_val':5,
+        'volume':7,
+        'volume_money':8,
+        'ch_ratio':9
     }
     def __init__(self, file):
         self.file = file
         self.data = []
         self.datadict = {}
+        self.index = 0
 
     def read(self, reverse = False):
         if {} == self.datadict and os.path.exists(self.file):
@@ -79,11 +85,24 @@ class csvdata:
 
     def read_last(self):
         self.read()
-        return self.data[-1][1]
+        try:
+            return self.data[-1][1]
+        except IndexError:
+            return None
+
+    def read_last_n(self, num):
+        self.read()
+        try:
+            return map(lambda x: x[1], self.data[-num:])
+        except IndexError:
+            return None
 
     def read_last_date(self):
         self.read()
-        return  self.data[-1][0]
+        try:
+            return  self.data[-1][0]
+        except:
+            return None
 
     def del_date(self, date):
         self.read()
@@ -119,6 +138,46 @@ class csvdata:
             result.append([elem[0], elem[1][index]])
         return  result
 
+    def get_elem_list_last_n(self,elemstr, lastnum):
+        try:
+            index = self.name_hash[elemstr]
+            self.read()
+            return map(lambda x: [x[0],x[1][index]], self.data[-lastnum:])
+        except KeyError:
+            return None
+
+    def get_elem_list_date_n(self, elemstr, finddate, count):
+        try:
+            self.read()
+            index = self.name_hash[elemstr]
+            date_list = map(lambda x:x[0], self.data)
+            date_index = date_list.index(finddate)
+            if count > 0:
+                if date_index + count > self.len():
+                    ret_data = map(lambda x: [x[0],x[1][index]], self.data[date_index:])
+                else:
+                    ret_data = map(lambda x: [x[0],x[1][index]], self.data[date_index:date_index + count])
+            else:
+                if date_index - count < 0:
+                    ret_data = map(lambda x: [x[0],x[1][index]], self.data[:date_index + 1])
+                else:
+                    ret_data = map(lambda x: [x[0],x[1][index]], self.data[date_index - count:date_index + 1])
+            return ret_data
+        except KeyError, IndexError:
+            return None
+
+    def get_elem_list_date_range(self, elemstr, startdate, enddate):
+        try:
+            self.read()
+            index = self.name_hash[elemstr]
+            date_list = map(lambda x:x[0], self.data)
+            start_index = date_index(date_list, startdate)
+            end_index = date_index(date_list, enddate, True)
+            ret_data = map(lambda x: [x[0],x[1][index]], self.data[start_index : end_index + 1])
+            return ret_data
+        except (KeyError, IndexError):
+            return None
+
     def range(self):
         pass
 
@@ -127,8 +186,62 @@ class csvdata:
         for elem in self.data:
             print elem
 
-if __name__ == "__main__":
-    testdata = csvdata('/tmp/stock.csv')
-    #print testdata.readdate("2015-11-26")
-    print testdata.get_elem_list('end_val')
+    def append_data(self, datalist, period='d'):
+        if self.len() > 0 and period != 'd':
+            last_date = self.read_last_date()
+            recv_first_date = datalist[0][0]
+            #print "recvdate: " + recv_first_date + " last_date: " + last_date
+            deletelast = False
+            if period == 'w' and issameweek(last_date, recv_first_date):
+                deletelast = True
+            elif period == 'm' and issamemonth(last_date, recv_first_date):
+                deletelast = True
+            if deletelast:
+                self.del_last()
+                self.write(datalist, overwrite= True)
+            else:
+                self.write(datalist)
+        else:
+            self.write(datalist)
 
+    def read_index(self, index):
+        try:
+            self.read()
+            return self.data[index][1]
+        except IndexError:
+            return None
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        self.read()
+        if self.index < len(self.data):
+            retdata = self.data[self.index][1]
+            self.index += 1
+            return retdata
+        else:
+            self.index = 0
+            raise StopIteration()
+
+    def hasdate(self, finddate):
+        self.read()
+        if self.datadict.has_key(finddate):
+            return True
+        else:
+            return False
+
+    def filename(self):
+        return self.file
+
+def get_elem(listdata, elemstr):
+    try:
+        index = csvdata.name_hash[elemstr]
+        return listdata[index]
+    except (IndexError, KeyError):
+        return None
+
+
+if __name__ == "__main__":
+    testdata = csvdata('/Users/nzm/code/stock_analyse/stockdata/600000_浦发银行/day.csv')
+    print testdata.read_index(0)

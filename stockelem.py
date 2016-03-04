@@ -1,19 +1,30 @@
 # coding=utf-8
 
+DATE=0
+STARTPRICE=1
+ENDPRICE=2
+DIFF_PRICE=3
+DIFF_RATIO=4
+LOW_PRICE=5
+HIGH_PRICE=6
+VOLUME=7
+VOLUME_MONEY=8
+CHANGE_RATIO=9
+
 class StockElem():
     def __init__(self, data):
-        self.date = data[0]
-        self.start_val = float(data[1])
-        self.end_val = float(data[2])
-        self.diff_val = float(data[3])
-        pos = data[4].find('%')
-        self.diff_ratio = float(data[4][:pos])/100
-        self.high_val = float(data[6])
-        self.low_val = float(data[5])
-        self.volume = int(data[7])  # 单位 手
-        self.volume_money = float(data[8]) # 单位 万
-        pos = data[9].find('%')
-        self.change_ratio = float(data[9][:pos])/100
+        self.date = data[DATE]
+        self.start_val = float(data[STARTPRICE])
+        self.end_val = float(data[ENDPRICE])
+        self.diff_val = float(data[DIFF_PRICE])
+        pos = data[DIFF_RATIO].find('%')
+        self.diff_ratio = float(data[DIFF_RATIO][:pos])/100
+        self.high_val = float(data[HIGH_PRICE])
+        self.low_val = float(data[LOW_PRICE])
+        self.volume = int(data[VOLUME])  # 单位 手
+        self.volume_money = float(data[VOLUME_MONEY]) # 单位 万
+        pos = data[CHANGE_RATIO].find('%')
+        self.change_ratio = float(data[CHANGE_RATIO][:pos])/100
 
     def dump(self):
         print u"日期: " + self.date
