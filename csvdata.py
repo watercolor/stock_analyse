@@ -9,13 +9,19 @@ class csvdata:
         'date':0,
         'start_val':1,
         'end_val':2,
+        'diff':3,
+        'diff_ratio':4,
         'high_val':6,
         'low_val':5,
+        'volume':7,
+        'volume_money':8,
+        'ch_ratio':9
     }
     def __init__(self, file):
         self.file = file
         self.data = []
         self.datadict = {}
+        self.index = 0
 
     def read(self, reverse = False):
         if {} == self.datadict and os.path.exists(self.file):
@@ -198,6 +204,44 @@ class csvdata:
         else:
             self.write(datalist)
 
+    def read_index(self, index):
+        try:
+            self.read()
+            return self.data[index][1]
+        except IndexError:
+            return None
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        self.read()
+        if self.index < len(self.data):
+            retdata = self.data[self.index][1]
+            self.index += 1
+            return retdata
+        else:
+            self.index = 0
+            raise StopIteration()
+
+    def hasdate(self, finddate):
+        self.read()
+        if self.datadict.has_key(finddate):
+            return True
+        else:
+            return False
+
+    def filename(self):
+        return self.file
+
+def get_elem(listdata, elemstr):
+    try:
+        index = csvdata.name_hash[elemstr]
+        return listdata[index]
+    except (IndexError, KeyError):
+        return None
+
+
 if __name__ == "__main__":
     testdata = csvdata('/Users/nzm/code/stock_analyse/stockdata/600000_浦发银行/day.csv')
-    print testdata.get_elem_list_date_range('end_val', "2015-12-01", "2015-12-22")
+    print testdata.read_index(0)

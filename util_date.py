@@ -1,4 +1,6 @@
+# coding=utf-8
 import time
+import os
 from datetime import date, datetime, timedelta
 def gen_datestr(today_val):
     y = str(today_val.year)
@@ -91,15 +93,21 @@ def date_index(date_list, finddate,left_find=False):
     else:
         return None
 
+def date_conv_with_line(datestr):
+    return datestr[0:4] + '-' + datestr[4:6] + '-' + datestr[6:8]
+
+def date_conv_sub_line(datestr):
+    return datestr[0:4] + datestr[5:7] + datestr[8:10]
+
 class date_file:
     def __init__(self, datefile = None):
         self.lastdate = None
-        if datefile ==  None:
+        if datefile is None:
             self.lastdate_file = os.path.join(os.getcwd(), "stockdata", "last_record_date")
-        else
+        else:
             self.lastdate_file = datefile
         with open(self.lastdate_file) as fd:
-            self.lastdate = fd.read()
+            self.lastdate = fd.read(8)
 
     def getnext(self, flush = False, next_n = 1):
         if flush:
@@ -117,3 +125,5 @@ class date_file:
 #ddd=["1990-01-01", "1990-01-02", "1990-01-04", "1990-01-06"]
 #print date_index(ddd, "1989-12-31", False)
 
+print date_conv_with_line("20150101")
+print date_conv_sub_line("2015-02-03")

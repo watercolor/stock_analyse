@@ -2,13 +2,15 @@
 for i in $PWD/*; do
     if [[ -d $i ]]; then
         cd $i
-        if [[ -e month_macd.csv ]]; then
-                sed -i {} -e "/2015-12-14/d" -e "/2015-12-15/d" -e "/2015-12-16/d" -e "/2015-12-17/d" month_macd.csv
-                echo "update month.csv in $i"
+        if [[ -e month.csv -a -e month_new.csv ]]; then
+            rm -f month.csv
+            mv month_new.csv month.csv
+            echo "rename $i month.csv "
         fi
-        if [[ -e week_macd.csv ]]; then
-                sed -i {} -e "/2015-12-14/d" -e "/2015-12-15/d" -e "/2015-12-16/d" -e "/2015-12-17/d" week_macd.csv
-                echo "update week.csv in $i"
+        if [[ -e week.csv -a -e week_new.csv ]]; then
+            rm -f week.csv
+            mv week_new.csv week.csv
+            echo "rename $i week.csv "
         fi
         cd ..
     fi

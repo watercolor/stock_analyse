@@ -6,6 +6,9 @@ from stock_cfg import *
 from util_date import *
 from macd import *
 from ma import *
+from util_path import *
+from datacheck import *
+
 class update_data:
     namedict = {
         "d": "day",
@@ -38,13 +41,26 @@ class update_data:
         name = self.stockarray.getname(code)
         csv_dir = self.basedir + os.sep + code + '_' + name
         if os.path.exists(csv_dir) == False:
-            os.mkdir(csv_dir)
+            oldpath = find_similar_path(code)
+            if oldpath:
+                os.rename(oldpath, csv_dir)
+                #print "rename " + oldpath + " to " + csv_dir
+            else:
+                os.mkdir(csv_dir)
+
         if savefile != None:
             csv_file = savefile
         else:
             csv_file = csv_dir + os.sep + self.namedict[self.period] + ".csv"
         print "Fetch %-6s(%s)" % (name, code)
-        sohudata = SohuData(code, self.startdate, self.enddate, self.period)
+        if os.path.exists(csv_file) == False:
+            startdate = "19900101"
+        else:
+            #startdate = self.startdate
+            data = csvdata(csv_file)
+            lastdate = data.read_last_date()
+            startdate = date_conv_sub_line(lastdate)
+        sohudata = SohuData(code, startdate, self.enddate, self.period)
         sohudata.fetchdata()
         print "Store data to " + csv_file
         sohudata.store_csv(csv_file)
@@ -59,8 +75,6 @@ def update_today(flush = False):
     week_handle = update_data(startdate=startdate, enddate=todaystr(), period='w')
     month_handle = update_data(startdate=startdate, enddate=todaystr(), period='m')
     for code in stockarray:
-        #if int(code) < 600279:
-        #    continue
         day_handle.update(code)
         week_handle.update(code)
         month_handle.update(code)
@@ -90,7 +104,13 @@ def macd_update(datafile, base_path):
         macdfile_path = os.path.join(base_path, macdfile_name)
         data = csvdata(datafile_path)
         if os.path.exists(macdfile_path):
-            price_data = data.get_elem_list_last_n('end_val', 1)
+            macdcsvdata = csvdata(macdfile_path)
+            macd_last_record_date = macdcsvdata.read_last_date()
+            start_date = next_n_day(macd_last_record_date, 1)
+            end_date = date_conv_with_line(todaystr())
+            #price_data = data.get_elem_list_last_n('end_val', 1)
+            price_data = data.get_elem_list_date_range('end_val', start_date, end_date)
+            #print price_data
             macd_obj.update(macdfile_path, price_data, period=get_period(datafile))
             print "Update " + macdfile_path + ' done'
         else:
@@ -107,8 +127,12 @@ def ma_update(datafile, base_path):
         mafile_path = os.path.join(base_path, mafile_name)
         data = csvdata(datafile_path)
         if os.path.exists(mafile_path):
-            price_data = data.get_elem_list_last_n('end_val', 1)
-            #price_data = data.get_elem_list_date_range('end_val', "2015-12-16", "2016-01-14")
+            macsvdata = csvdata(mafile_path)
+            ma_last_record_date = macsvdata.read_last_date()
+            start_date = next_n_day(ma_last_record_date, 1)
+            end_date = date_conv_with_line(todaystr())
+            #price_data = data.get_elem_list_last_n('end_val', 1)
+            price_data = data.get_elem_list_date_range('end_val', start_date, end_date)
             #print price_data
             ma_obj.update(mafile_path, datafile_path, price_data, period=get_period(datafile))
             print "Update " + mafile_path + ' done'
@@ -123,8 +147,6 @@ def walk_all_file_do(func):
     basedir = os.path.join(os.getcwd() ,"stockdata")
     for parent,dirnames,filenames in os.walk(basedir):
         for dirname in  dirnames:
-            #if dirname < "000589":
-            #    continue
             fullpath = os.path.join(parent,dirname)
             print "Enter " + fullpath
             for datafile in basefiles:
@@ -133,4 +155,5 @@ def walk_all_file_do(func):
 datefile=date_file()
 update_today()
 algo_update()
+#walk_all_file_do(algodata_check)
 datefile.update()
